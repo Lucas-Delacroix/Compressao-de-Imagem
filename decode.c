@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
 struct pgm{
 	int tipo;
 	int altura;
@@ -14,40 +13,26 @@ struct pgm{
 void readPGMImage(struct pgm *, char *);
 void viewPGMImage(struct pgm *);
 void writePGMImage(struct pgm *, char *);
-void decode(int, int, int, int, int, struct pgm *, unsigned char **);
+void decode(FILE *, int, int, int, int, struct pgm *);
 void compress(struct pgm *pio);
+void reconstruirImagem(const char *, struct pgm *);
+int lerBits(FILE *, int);
 
 int main(int argc, char *argv[]){
 	struct pgm img;
+    if (argc != 3) {
+        printf("Formato: \n\t %s <imagemEntrada.pgm> <imagemSaida.pgm>\n", argv[0]);
+        exit(1);
+    }
 
+    readPGMImage(&img, argv[1]);
+    
+    reconstruirImagem("saida.bin", &img);
 
-	if (argc!=3){
-		printf("Formato: \n\t %s <imagemEntrada.pgm> <imagemSaida.pgm>\n",argv[0]);
-		exit(1);
-	}
+    writePGMImage(&img, argv[2]);
+    viewPGMImage(&img);
 
-    unsigned char bitstream[7][2] = {
-    {1, 0},    // Bloco principal não homogêneo, divide em 4
-    {0, 100},  // Sub-bloco 1: homogêneo, valor 100
-    {0, 150},  // Sub-bloco 2: homogêneo, valor 150
-    {0, 200},  // Sub-bloco 3: homogêneo, valor 200
-    {0, 250},  // Sub-bloco 4: homogêneo, valor 250
-};
-    unsigned char *ptr = &bitstream[0][0];
-    unsigned char **div = &ptr;
-
-	readPGMImage(&img,argv[1]);
-
-    decode(0, 0, 0, img.altura, img.largura, &img, div);
-	writePGMImage(&img, argv[2]);
-
-
-	viewPGMImage(&img);
-
-
-	return 0;
-
-
+    return 0;
 }
 
 
@@ -150,22 +135,62 @@ void viewPGMImage(struct pgm *pio){
 	printf("\n");
 }
 
-void decode(int x, int y, int div, int altura, int largura, struct pgm *pio, unsigned char **bit){
-    int media = *(*(bit+div)+1);
-    int indice = div;
-    if (**(bit+div) == 0) {
-        for (int i = 0; i < altura; i++){
-            for(int j = 0; j<largura; j++){
-                *((pio->pData)+((x+i)*pio->largura+(y+j))) = media; 
+int lerBits(FILE *file, int numBits) {
+    static int buffer = 0;
+    static int bitsDisponiveis = 0;
+    int resultado = 0;
+    
+    while (numBits > 0) {
+        if (bitsDisponiveis == 0) {
+            buffer = fgetc(file);
+            if (buffer == EOF) {
+                return -1;  // Fim do arquivo
+            }
+            bitsDisponiveis = 8;
+        }
+        
+        int bitsParaLer = (numBits < bitsDisponiveis) ? numBits : bitsDisponiveis;
+        resultado = (resultado << bitsParaLer) | (buffer >> (bitsDisponiveis - bitsParaLer));
+        bitsDisponiveis -= bitsParaLer;
+        numBits -= bitsParaLer;
+        buffer &= (1 << bitsDisponiveis) - 1;
+    }
+    
+    return resultado;
+}
+
+// Função recursiva para reconstruir a imagem a partir do bitstream
+void decode(FILE *file, int x, int y, int altura, int largura, struct pgm *pio) {
+    int folha = lerBits(file, 1);  // Ler 1 bit para verificar se é nó folha
+    if (folha == 1) {
+        int media = lerBits(file, 8);  // Ler 8 bits para o valor médio
+        for (int i = 0; i < altura; i++) {
+            for (int j = 0; j < largura; j++) {
+                pio->pData[(y + i) * pio->largura + (x + j)] = media;
             }
         }
     } else {
-        int novaAltura = (altura)/2;
-        int novaLargura = (largura)/2;
-        div++;
-        decode(x, y, novaAltura, novaLargura, div, pio, bit);
-        decode(x+novaAltura, y, novaAltura, novaLargura, div, pio, bit);
-        decode(x, y+novaLargura, novaAltura, novaLargura, div, pio, bit);
-        decode(x+novaAltura, y+novaLargura, novaAltura, novaLargura, div, pio, bit);
+        int metadeAltura = altura / 2;
+        int metadeLargura = largura / 2;
+        
+        // Chamar recursivamente para os quatro sub-blocos
+        decode(file, x, y, metadeAltura, metadeLargura, pio);  // Top-Left
+        decode(file, x + metadeLargura, y, metadeAltura, largura - metadeLargura, pio);  // Top-Right
+        decode(file, x, y + metadeAltura, altura - metadeAltura, metadeLargura, pio);  // Bottom-Left
+        decode(file, x + metadeLargura, y + metadeAltura, altura - metadeAltura, largura - metadeLargura, pio);  // Bottom-Right
     }
+}
+
+// Função para reconstruir a imagem a partir do arquivo binário
+void reconstruirImagem(const char *filename, struct pgm *img) {
+    FILE *file = fopen(filename, "rb");
+    if (!file) {
+        perror("Erro ao abrir o arquivo binário");
+        exit(1);
+    }
+    
+    decode(file, 0, 0, img->altura, img->largura, img);
+    
+    fclose(file);
+    printf("Reconstrução completa.\n");
 }
