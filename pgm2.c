@@ -11,7 +11,6 @@ struct pgm{
 	unsigned char *pData;
 };
 
-
 // Estrutura de nó da QuadTree
 typedef struct QuadTreeNode {
     int x, y;  // Coordenadas do canto superior esquerdo do bloco
@@ -22,6 +21,12 @@ typedef struct QuadTreeNode {
 } QuadTreeNode;
 
 // Função para criar um novo nó da QuadTree
+QuadTreeNode* Pintar(unsigned char *data, int incremento, int largura, int altura){
+    for(int i = 0; i < (largura * altura); i++){
+        data[i] = incremento;
+    }
+}
+
 QuadTreeNode* criarNo(int x, int y, int largura, int altura, int valor, int folha) {
     QuadTreeNode* node = (QuadTreeNode*)malloc(sizeof(QuadTreeNode));
     node->x = x;
@@ -35,7 +40,7 @@ QuadTreeNode* criarNo(int x, int y, int largura, int altura, int valor, int folh
 }
 
 // Função para calcular a média dos valores no bloco
-int calcularMedia(int *data, int larguraImg, int x, int y, int largura, int altura) {
+int calcularMedia(unsigned char *data, int larguraImg, int x, int y, int largura, int altura) {
     int soma = 0;
     for (int i = 0; i < altura; i++) {
         for (int j = 0; j < largura; j++) {
@@ -46,11 +51,26 @@ int calcularMedia(int *data, int larguraImg, int x, int y, int largura, int altu
 }
 
 // Função para verificar se o bloco é homogêneo (todos os valores iguais)
-int blocoHomogeneo(int *data, int larguraImg, int x, int y, int largura, int altura) {
+// int blocoHomogeneo(unsigned char *data, int larguraImg, int x, int y, int largura, int altura) {
+//     int primeiroValor = data[y * larguraImg + x];
+//     for (int i = 0; i < altura; i++) {
+//         for (int j = 0; j < largura; j++) {
+//             if (data[(y + i) * larguraImg + (x + j)] != primeiroValor) {
+//                 return 0;  // Bloco não homogêneo
+//             }
+//         }
+//     }
+//     return 1;  // Bloco homogêneo
+// }
+
+int blocoHomogeneo(unsigned char *data, int larguraImg, int x, int y, int largura, int altura) {
+    int tolerancia = 80;
     int primeiroValor = data[y * larguraImg + x];
     for (int i = 0; i < altura; i++) {
         for (int j = 0; j < largura; j++) {
-            if (data[(y + i) * larguraImg + (x + j)] != primeiroValor) {
+            int valorAtual = data[(y + i) * larguraImg + (x + j)];
+            // Verifica se a diferença entre os valores está dentro da tolerância
+            if (abs(valorAtual - primeiroValor) > tolerancia) {
                 return 0;  // Bloco não homogêneo
             }
         }
@@ -59,20 +79,18 @@ int blocoHomogeneo(int *data, int larguraImg, int x, int y, int largura, int alt
 }
 
 // Função recursiva para construir a QuadTree
-QuadTreeNode* construirQuadTree(struct pgm *pio){
-    int data = *(pio->pData);
+QuadTreeNode* construirQuadTree(struct pgm *pio, int x, int y, int largura, int altura, int incremento) {
+    unsigned char *data = pio->pData;
     int larguraImg = pio->largura;
-    int x = 0;
-    int y = 0;
-    int largura = pio->largura;
-    int altura = pio->altura;
     
     // Se o bloco for homogêneo ou de tamanho mínimo, cria um nó folha
     if (blocoHomogeneo(data, larguraImg, x, y, largura, altura) || (largura == 1 && altura == 1)) {
         int media = calcularMedia(data, larguraImg, x, y, largura, altura);
+        incremento+=3;
+        
+        Pintar(data, media, largura, altura);
         return criarNo(x, y, largura, altura, media, 1);  // Nó folha
     }
-
     // Dividir o bloco em quatro sub-blocos
     int metadeLargura = largura / 2;
     int metadeAltura = altura / 2;
@@ -80,13 +98,19 @@ QuadTreeNode* construirQuadTree(struct pgm *pio){
     QuadTreeNode* node = criarNo(x, y, largura, altura, 0, 0);  // Nó interno
 
     // Chamada recursiva para os quatro sub-blocos
-    node->topLeft = construirQuadTree(data, larguraImg, x, y, metadeLargura, metadeAltura);
-    node->topRight = construirQuadTree(data, larguraImg, x + metadeLargura, y, largura - metadeLargura, metadeAltura);
-    node->bottomLeft = construirQuadTree(data, larguraImg, x, y + metadeAltura, metadeLargura, altura - metadeAltura);
-    node->bottomRight = construirQuadTree(data, larguraImg, x + metadeLargura, y + metadeAltura, largura - metadeLargura, altura - metadeAltura);
+    node->topLeft = construirQuadTree(pio, x, y, metadeLargura, metadeAltura, incremento);
+    node->topRight = construirQuadTree(pio, x + metadeLargura, y, largura - metadeLargura, metadeAltura, incremento);
+    node->bottomLeft = construirQuadTree(pio, x, y + metadeAltura, metadeLargura, altura - metadeAltura, incremento);
+    node->bottomRight = construirQuadTree(pio, x + metadeLargura, y + metadeAltura, largura - metadeLargura, altura - metadeAltura, incremento);
 
     return node;
 }
+
+void escreverBits(FILE *file, int valor, int numBits);
+void QuadTreeParaBitstream(QuadTreeNode *node, FILE *file);
+void finalizarBitstream(FILE *file);
+void compressQuadTree(QuadTreeNode *root, const char *filename);
+
 
 // Função para imprimir a QuadTree (para visualização)
 void imprimirQuadTree(QuadTreeNode *node) {
@@ -104,6 +128,70 @@ void imprimirQuadTree(QuadTreeNode *node) {
 }
 
 
+// Função principal para escrever a QuadTree em um arquivo binário
+void compressQuadTree(QuadTreeNode *root, const char *filename) {
+    FILE *file = fopen(filename, "wb");
+    if (!file) {
+        perror("Erro ao abrir arquivo de bitstream");
+        exit(1);
+    }
+    
+    // Converte a QuadTree para bitstream
+    QuadTreeParaBitstream(root, file);
+    
+    // Finaliza o bitstream (escreve o byte incompleto, se necessário)
+    finalizarBitstream(file);
+    
+    fclose(file);
+    printf("Compressão completa. Arquivo salvo como %s\n", filename);
+}
+
+
+// Função para fechar qualquer byte incompleto no arquivo
+void finalizarBitstream(FILE *file) {
+    static int buffer = 0;
+    static int bitsDisponiveis = 8;
+    
+    if (bitsDisponiveis < 8) {
+        buffer <<= bitsDisponiveis;
+        fputc(buffer, file);
+    }
+}
+
+// Função recursiva para converter a QuadTree em bitstream
+void QuadTreeParaBitstream(QuadTreeNode *node, FILE *file) {
+    if (node->folha) {
+        escreverBits(file, 1, 1);  // Indica que é um nó folha
+        escreverBits(file, node->valor, 8);  // Escreve o valor do nó folha (8 bits)
+    } else {
+        escreverBits(file, 0, 1);  // Indica que é um nó interno
+        // Chama recursivamente para os quatro filhos
+        QuadTreeParaBitstream(node->topLeft, file);
+        QuadTreeParaBitstream(node->topRight, file);
+        QuadTreeParaBitstream(node->bottomLeft, file);
+        QuadTreeParaBitstream(node->bottomRight, file);
+    }
+}
+
+// Função para escrever bits no arquivo de bitstream
+void escreverBits(FILE *file, int valor, int numBits) {
+    static int buffer = 0;
+    static int bitsDisponiveis = 8;
+    
+    while (numBits > 0) {
+        int bitsParaEscrever = (numBits < bitsDisponiveis) ? numBits : bitsDisponiveis;
+        buffer = (buffer << bitsParaEscrever) | (valor >> (numBits - bitsParaEscrever));
+        bitsDisponiveis -= bitsParaEscrever;
+        numBits -= bitsParaEscrever;
+        valor &= (1 << numBits) - 1;
+        
+        if (bitsDisponiveis == 0) {
+            fputc(buffer, file);
+            buffer = 0;
+            bitsDisponiveis = 8;
+        }
+    }
+}
 
 void readPGMImage(struct pgm *, char *);
 void viewPGMImage(struct pgm *);
@@ -117,11 +205,13 @@ int main(int argc, char *argv[]){
 		printf("Formato: \n\t %s <imagemEntrada.pgm> <imagemSaida.pgm>\n",argv[0]);
 		exit(1);
 	}
+    int incremento = 0;
 
 
 	readPGMImage(&img,argv[1]);
-	compressImage(&img);
-	QuadTreeNode *root = construirQuadTree(&img);
+	// compressImage(&img);
+	QuadTreeNode *root = construirQuadTree(&img, 0, 0, img.largura, img.altura, incremento);
+    imprimirQuadTree(root);
 	writePGMImage(&img, argv[2]);
 
 	viewPGMImage(&img);
