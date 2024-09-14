@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-
+#define tolerancia 100
 
 
 struct pgm{
@@ -20,12 +20,6 @@ typedef struct QuadTreeNode {
     struct QuadTreeNode *topLeft, *topRight, *bottomLeft, *bottomRight;  // Filhos
 } QuadTreeNode;
 
-// Função para criar um novo nó da QuadTree
-QuadTreeNode* Pintar(unsigned char *data, int incremento, int largura, int altura){
-    for(int i = 0; i < (largura * altura); i++){
-        data[i] = incremento;
-    }
-}
 
 QuadTreeNode* criarNo(int x, int y, int largura, int altura, int valor, int folha) {
     QuadTreeNode* node = (QuadTreeNode*)malloc(sizeof(QuadTreeNode));
@@ -44,16 +38,15 @@ int calcularMedia(unsigned char *data, int larguraImg, int x, int y, int largura
 int blocoHomogeneo(unsigned char *data, int larguraImg, int x, int y, int largura, int altura);
 
 // Função recursiva para construir a QuadTree
-QuadTreeNode* construirQuadTree(struct pgm *pio, int x, int y, int largura, int altura, int incremento) {
+QuadTreeNode* construirQuadTree(struct pgm *pio, int x, int y, int largura, int altura) {
     unsigned char *data = pio->pData;
     int larguraImg = pio->largura;
     
     // Se o bloco for homogêneo ou de tamanho mínimo, cria um nó folha
     if (blocoHomogeneo(data, larguraImg, x, y, largura, altura) || (largura == 1 && altura == 1)) {
         int media = calcularMedia(data, larguraImg, x, y, largura, altura);
-        incremento+=3;
         
-        Pintar(data, media, largura, altura);
+        
         return criarNo(x, y, largura, altura, media, 1);  // Nó folha
     }
     // Dividir o bloco em quatro sub-blocos
@@ -63,10 +56,10 @@ QuadTreeNode* construirQuadTree(struct pgm *pio, int x, int y, int largura, int 
     QuadTreeNode* node = criarNo(x, y, largura, altura, 0, 0);  // Nó interno
 
     // Chamada recursiva para os quatro sub-blocos
-    node->topLeft = construirQuadTree(pio, x, y, metadeLargura, metadeAltura, incremento);
-    node->topRight = construirQuadTree(pio, x + metadeLargura, y, largura - metadeLargura, metadeAltura, incremento);
-    node->bottomLeft = construirQuadTree(pio, x, y + metadeAltura, metadeLargura, altura - metadeAltura, incremento);
-    node->bottomRight = construirQuadTree(pio, x + metadeLargura, y + metadeAltura, largura - metadeLargura, altura - metadeAltura, incremento);
+    node->topLeft = construirQuadTree(pio, x, y, metadeLargura, metadeAltura);
+    node->topRight = construirQuadTree(pio, x + metadeLargura, y, largura - metadeLargura, metadeAltura);
+    node->bottomLeft = construirQuadTree(pio, x, y + metadeAltura, metadeLargura, altura - metadeAltura);
+    node->bottomRight = construirQuadTree(pio, x + metadeLargura, y + metadeAltura, largura - metadeLargura, altura - metadeAltura);
 
     return node;
 }
@@ -97,12 +90,11 @@ int main(int argc, char *argv[]){
 		printf("Formato: \n\t %s <imagemEntrada.pgm> <imagemSaida.pgm>\n",argv[0]);
 		exit(1);
 	}
-    int incremento = 0;
 
 
 	readPGMImage(&img,argv[1]);
 	// compressImage(&img);
-	QuadTreeNode *root = construirQuadTree(&img, 0, 0, img.largura, img.altura, incremento);
+	QuadTreeNode *root = construirQuadTree(&img, 0, 0, img.largura, img.altura);
 	compressQuadTree(root, "saida.bin");
     imprimirQuadTree(root);
 	writePGMImage(&img, argv[2]);
@@ -209,7 +201,7 @@ void viewPGMImage(struct pgm *pio){
 	printf("Tipo: %d\n",pio->tipo);
 	printf("Dimensões: [%d %d]\n",pio->altura, pio->largura);
 	printf("Max: %d\n",pio->mv);
-	printf("Size: %d\n", sizeof((pio->pData)));
+	printf("Size: %ld\n", sizeof((pio->pData)));
 
 	for (int k=0; k < (pio->largura * pio->altura); k++){
 		// if (!( k % pio->altura)) printf("\n");
@@ -249,7 +241,6 @@ int calcularMedia(unsigned char *data, int larguraImg, int x, int y, int largura
 
 
 int blocoHomogeneo(unsigned char *data, int larguraImg, int x, int y, int largura, int altura) {
-    int tolerancia = 80;
     int primeiroValor = data[y * larguraImg + x];
     for (int i = 0; i < altura; i++) {
         for (int j = 0; j < largura; j++) {
