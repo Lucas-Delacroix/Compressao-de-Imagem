@@ -2,7 +2,7 @@
 #include "pgm.h"
 #include <stdio.h>
 #include <stdlib.h>
-#define tolerancia 100
+#define tolerancia 40
 
 
 QuadTreeNode* criarNo(int x, int y, int largura, int altura, int valor, int folha) {
