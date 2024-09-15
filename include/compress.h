@@ -5,7 +5,7 @@
 #include "pgm.h"
 #include <stdio.h>
 
-void compressQuadTree(QuadTreeNode *root, const char *filename);
+void compressQuadTree(QuadTreeNode *root, int largura, int altura, const char *filename);
 
 void QuadTreeParaBitstream(QuadTreeNode *node, FILE *file);
 

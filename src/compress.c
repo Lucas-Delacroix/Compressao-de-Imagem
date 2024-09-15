@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void compressQuadTree(QuadTreeNode *root, const char *filename)
+void compressQuadTree(QuadTreeNode *root, int largura, int altura, const char *filename)
 {
     FILE *file = fopen(filename, "wb");
     if (!file)
@@ -10,6 +10,10 @@ void compressQuadTree(QuadTreeNode *root, const char *filename)
         perror("Erro ao abrir arquivo de bitstream");
         exit(1);
     }
+
+    // Adiciona a largura e altura da imagem para reconstrução
+    fwrite(&largura, sizeof(int), 1, file);
+    fwrite(&altura, sizeof(int), 1, file);
 
     
     QuadTreeParaBitstream(root, file);
