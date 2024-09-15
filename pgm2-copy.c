@@ -53,7 +53,7 @@ void escreverBits(FILE *file, int valor, int numBits);
 void readPGMImage(struct pgm *, char *);
 void viewPGMImage(struct pgm *);
 void writePGMImage(struct pgm *, char *);
-void compressImage(struct pgm *);
+
 
 
 QuadTreeNode* construirQuadTree(struct pgm *pio, int x, int y, int largura, int altura) {
@@ -91,7 +91,6 @@ int main(int argc, char *argv[]){
 
 
 	readPGMImage(&img,argv[1]);
-	// compressImage(&img);
 	QuadTreeNode *root = construirQuadTree(&img, 0, 0, img.largura, img.altura);
 	compressQuadTree(root, "saida.bin");
     imprimirQuadTree(root);
@@ -208,23 +207,6 @@ void viewPGMImage(struct pgm *pio){
 	}	
 	printf("\n");
 }
-
-
-
-void compressImage(struct pgm *pio){
-	int x =0;
-	
-	
-	
-	for (int k = 0; k < (pio->largura * pio->altura); k++){
-        for (x = 0; x < (pio->largura) / 2; x++){
-            *(pio->pData + k) = 255;
-            k++;
-        }
-        k += (pio->largura) / 2 - 1; 
-    }
-}
-
 
 
 int calcularMedia(unsigned char *data, int larguraImg, int x, int y, int largura, int altura) {

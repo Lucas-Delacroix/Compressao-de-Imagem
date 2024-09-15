@@ -12,7 +12,6 @@ void QuadTreeParaBitstream(QuadTreeNode *node, FILE *file);
 
 void finalizarBitstream(FILE *file);
 
-void compressImage(struct pgm *);
 
 void escreverBits(FILE *file, int valor, int numBits);
 

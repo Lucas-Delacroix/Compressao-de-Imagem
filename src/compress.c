@@ -51,18 +51,6 @@ void finalizarBitstream(FILE *file)
 }
 
 
-void compressImage(struct pgm *pio){
-	int x =0;
-	for (int k = 0; k < (pio->largura * pio->altura); k++){
-        for (x = 0; x < (pio->largura) / 2; x++){
-            *(pio->pData + k) = 255;
-            k++;
-        }
-        k += (pio->largura) / 2 - 1; 
-    }
-}
-
-
 void escreverBits(FILE *file, int valor, int numBits)
 {
     static int buffer = 0;
