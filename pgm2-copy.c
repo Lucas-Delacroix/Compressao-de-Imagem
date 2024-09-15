@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #define tolerancia 1
-#define maxDiff 15  // Máxima diferença entre pixels
+#define maxDiff 15  
 
 struct pgm{
 	int tipo;
@@ -12,13 +12,13 @@ struct pgm{
 	unsigned char *pData;
 };
 
-// Estrutura de nó da QuadTree
+
 typedef struct QuadTreeNode {
-    int x, y;  // Coordenadas do canto superior esquerdo do bloco
-    int largura, altura;  // Dimensões do bloco
-    int valor;  // Valor médio do bloco (por simplicidade)
-    int folha;  // Indica se é um nó folha
-    struct QuadTreeNode *topLeft, *topRight, *bottomLeft, *bottomRight;  // Filhos
+    int x, y;  
+    int largura, altura;  
+    int valor;  
+    int folha;  
+    struct QuadTreeNode *topLeft, *topRight, *bottomLeft, *bottomRight;  
 } QuadTreeNode;
 
 
@@ -34,7 +34,7 @@ QuadTreeNode* criarNo(int x, int y, int largura, int altura, int valor, int folh
     return node;
 }
 
-// Função para calcular a média dos valores no bloco
+
 float calcularDesvioPadrao(unsigned char *data, int larguraImg, int x, int y, int largura, int altura);
 float calcularErroPadrao(unsigned char *data, int larguraImg, int x, int y, int largura, int altura);
 double calcularEntropia(unsigned char *data, int larguraImg, int x, int y, int largura, int altura);
@@ -45,15 +45,10 @@ void escreverBits(FILE *file, int valor, int numBits);
 void QuadTreeParaBitstream(QuadTreeNode *node, FILE *file);
 void finalizarBitstream(FILE *file);
 void compressQuadTree(QuadTreeNode *root, const char *filename);
-// Função para imprimir a QuadTree (para visualização)
 void imprimirQuadTree(QuadTreeNode *node);
-// Função principal para escrever a QuadTree em um arquivo binário
 void compressQuadTree(QuadTreeNode *root, const char *filename);
-// Função para fechar qualquer byte incompleto no arquivo
 void finalizarBitstream(FILE *file);
-// Função recursiva para converter a QuadTree em bitstream
 void QuadTreeParaBitstream(QuadTreeNode *node, FILE *file);
-// Função para escrever bits no arquivo de bitstream
 void escreverBits(FILE *file, int valor, int numBits);
 void readPGMImage(struct pgm *, char *);
 void viewPGMImage(struct pgm *);
@@ -61,24 +56,23 @@ void writePGMImage(struct pgm *, char *);
 void compressImage(struct pgm *);
 
 
-// Função recursiva para construir a QuadTree
 QuadTreeNode* construirQuadTree(struct pgm *pio, int x, int y, int largura, int altura) {
     unsigned char *data = pio->pData;
     int larguraImg = pio->largura;
     
-    // Se o bloco for homogêneo ou de tamanho mínimo, cria um nó folha
+    
     if (blocoHomogeneo(data, larguraImg, x, y, largura, altura) || (largura == 1 && altura == 1)) {
         int media = calcularMedia(data, larguraImg, x, y, largura, altura);
-        return criarNo(x, y, largura, altura, media, 1);  // Nó folha
+        return criarNo(x, y, largura, altura, media, 1);  
     }
     
-    // Dividir o bloco em quatro sub-blocos
+    
     int metadeLargura = largura / 2;
     int metadeAltura = altura / 2;
 
-    QuadTreeNode* node = criarNo(x, y, largura, altura, 0, 0);  // Nó interno
+    QuadTreeNode* node = criarNo(x, y, largura, altura, 0, 0);  
 
-    // Chamada recursiva para os quatro sub-blocos
+    
     node->topLeft = construirQuadTree(pio, x, y, metadeLargura, metadeAltura);
     node->topRight = construirQuadTree(pio, x + metadeLargura, y, largura - metadeLargura, metadeAltura);
     node->bottomLeft = construirQuadTree(pio, x, y + metadeAltura, metadeLargura, altura - metadeAltura);
@@ -219,20 +213,20 @@ void viewPGMImage(struct pgm *pio){
 
 void compressImage(struct pgm *pio){
 	int x =0;
-	// unsigned char data = *(pio->pData);
 	
-	// Loop for para percorrer a matriz inteira
+	
+	
 	for (int k = 0; k < (pio->largura * pio->altura); k++){
         for (x = 0; x < (pio->largura) / 2; x++){
             *(pio->pData + k) = 255;
             k++;
         }
-        k += (pio->largura) / 2 - 1; // Subtraímos 1 porque o for principal também incrementa k
+        k += (pio->largura) / 2 - 1; 
     }
 }
 
 
-// Função para calcular a média dos valores no bloco
+
 int calcularMedia(unsigned char *data, int larguraImg, int x, int y, int largura, int altura) {
     int soma = 0;
     for (int i = 0; i < altura; i++) {
@@ -278,9 +272,9 @@ int blocoHomogeneo(unsigned char *data, int larguraImg, int x, int y, int largur
 
     // Verifica se o bloco é homogêneo com base no desvio padrão e na entropia
     if (desvioPadrao < limiteDesvioPadrao && entropia < limiteEntropia) {
-        return 1;  // Bloco homogêneo
+        return 1;  
     } else {
-        return 0;  // Bloco não homogêneo
+        return 0;  
     }
     // if (desvioPadrao > tolerancia) {
     //     return 0;  // Bloco não homogêneo
@@ -290,7 +284,7 @@ int blocoHomogeneo(unsigned char *data, int larguraImg, int x, int y, int largur
 }
 
 
-// Função para imprimir a QuadTree (para visualização)
+
 void imprimirQuadTree(QuadTreeNode *node) {
     if (node == NULL) return;
 
@@ -313,10 +307,10 @@ void compressQuadTree(QuadTreeNode *root, const char *filename) {
         exit(1);
     }
     
-    // Converte a QuadTree para bitstream
+    
     QuadTreeParaBitstream(root, file);
     
-    // Finaliza o bitstream (escreve o byte incompleto, se necessário)
+    
     finalizarBitstream(file);
     
     fclose(file);
@@ -324,7 +318,7 @@ void compressQuadTree(QuadTreeNode *root, const char *filename) {
 }
 
 
-// Função para fechar qualquer byte incompleto no arquivo
+
 void finalizarBitstream(FILE *file) {
     static int buffer = 0;
     static int bitsDisponiveis = 8;
@@ -338,11 +332,11 @@ void finalizarBitstream(FILE *file) {
 
 void QuadTreeParaBitstream(QuadTreeNode *node, FILE *file) {
     if (node->folha) {
-        escreverBits(file, 1, 1);  // Indica que é um nó folha
-        escreverBits(file, node->valor, 8);  // Escreve o valor do nó folha (8 bits)
+        escreverBits(file, 1, 1);  
+        escreverBits(file, node->valor, 8);  
     } else {
-        escreverBits(file, 0, 1);  // Indica que é um nó interno
-        // Chama recursivamente para os quatro filhos
+        escreverBits(file, 0, 1);  
+        
         QuadTreeParaBitstream(node->topLeft, file);
         QuadTreeParaBitstream(node->topRight, file);
         QuadTreeParaBitstream(node->bottomLeft, file);
@@ -351,7 +345,7 @@ void QuadTreeParaBitstream(QuadTreeNode *node, FILE *file) {
 }
 
 
-// Função para escrever bits no arquivo de bitstream
+
 void escreverBits(FILE *file, int valor, int numBits) {
     static int buffer = 0;
     static int bitsDisponiveis = 8;
@@ -372,7 +366,7 @@ void escreverBits(FILE *file, int valor, int numBits) {
 }
 
 
-// Função para calcular o desvio padrão do bloco
+
 float calcularDesvioPadrao(unsigned char *data, int larguraImg, int x, int y, int largura, int altura) {
     float soma = 0, somaQuadrada = 0;
     int numPixels = largura * altura;
@@ -394,7 +388,7 @@ float calcularErroPadrao(unsigned char *data, int larguraImg, int x, int y, int 
     int totalPixels = largura * altura;
     float media, variancia = 0.0;
 
-    // Calcular a média dos valores do bloco
+    
     for (int i = 0; i < altura; i++) {
         for (int j = 0; j < largura; j++) {
             soma += data[(y + i) * larguraImg + (x + j)];
@@ -402,7 +396,7 @@ float calcularErroPadrao(unsigned char *data, int larguraImg, int x, int y, int 
     }
     media = soma / (float)totalPixels;
 
-    // Calcular a variância
+    
     for (int i = 0; i < altura; i++) {
         for (int j = 0; j < largura; j++) {
             float valor = data[(y + i) * larguraImg + (x + j)];
@@ -411,10 +405,10 @@ float calcularErroPadrao(unsigned char *data, int larguraImg, int x, int y, int 
     }
     variancia /= totalPixels;
 
-    // Calcular o desvio padrão
+    
     float desvioPadrao = sqrt(variancia);
 
-    // Calcular o erro padrão
+    
     float erroPadrao = desvioPadrao / sqrt(totalPixels);
 
     return erroPadrao;
@@ -425,7 +419,7 @@ double calcularEntropia(unsigned char *data, int larguraImg, int x, int y, int l
     int histograma[256] = {0};
     int totalPixels = largura * altura;
 
-    // Calcula o histograma dos valores de pixel no bloco
+    
     for (int i = 0; i < altura; i++) {
         for (int j = 0; j < largura; j++) {
             int valor = data[(y + i) * larguraImg + (x + j)];
@@ -433,7 +427,7 @@ double calcularEntropia(unsigned char *data, int larguraImg, int x, int y, int l
         }
     }
 
-    // Calcula a entropia
+    
     double entropia = 0.0;
     for (int i = 0; i < 256; i++) {
         if (histograma[i] > 0) {

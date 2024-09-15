@@ -16,7 +16,6 @@ int main(int argc, char *argv[])
 
 	readPGMImage(&img, argv[1]);
 
-	// compressImage(&img);
 	QuadTreeNode *root = construirQuadTree(&img, 0, 0, img.largura, img.altura);
 
 	compressQuadTree(root, "saida.bin");
