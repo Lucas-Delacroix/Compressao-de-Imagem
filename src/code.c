@@ -26,7 +26,8 @@ int main(int argc, char *argv[])
 	QuadTreeNode *root = construirQuadTree(&img, 0, 0, img.largura, img.altura);
 
 	//Comprimir quadtree e salva os dados como saida.bin 
-	compressQuadTree(root, img.largura, img.altura, "saida.bin");
+	compressQuadTreeToBin(root, img.largura, img.altura, "saida.bin");
+	compressQuadTreeToTxt(root, img.largura, img.altura, "saida.txt");
 
 	//Visualizar estrutura da quadtree
 	imprimirQuadTree(root);

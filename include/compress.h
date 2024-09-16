@@ -5,14 +5,13 @@
 #include "pgm.h"
 #include <stdio.h>
 
-void compressQuadTree(QuadTreeNode *root, int largura, int altura, const char *filename);
-
+void compressQuadTreeToBin(QuadTreeNode *root, int largura, int altura, const char *filename);
+void compressQuadTreeToTxt(QuadTreeNode *root, int largura, int altura, const char *filenameTxt);
 void QuadTreeParaBitstream(QuadTreeNode *node, FILE *file);
-
-
+void QuadTreeParaTxtBitstream(QuadTreeNode *node, FILE *fileTxt);
+void escreverBits(FILE *file, int valor, int numBits);
 void finalizarBitstream(FILE *file);
 
 
-void escreverBits(FILE *file, int valor, int numBits);
 
 #endif
