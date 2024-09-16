@@ -6,7 +6,6 @@
 
 #define tolerancia 40
 #define toleranciaDP 5 // Maior, mais perda
-#define toleranciaEMQ 100 // Maior, mais perda
 
 
 QuadTreeNode* criarNo(int x, int y, int largura, int altura, int valor, int folha) {
@@ -17,40 +16,45 @@ QuadTreeNode* criarNo(int x, int y, int largura, int altura, int valor, int folh
     node->altura = altura;
     node->valor = valor;
     node->folha = folha;
+
+    //Como é uma folha, não possui filhos, logo será NULL.
     node->superiorEsquerdo = node->superiorDireito = node->inferiorEsquerdo = node->inferiorDireito = NULL;
     return node;
 }
 
 
-QuadTreeNode* construirQuadTree(struct pgm *pio, int x, int y, int largura, int altura) {
-    unsigned char *data = pio->pData;
-    int larguraImg = pio->largura;
+QuadTreeNode* construirQuadTree(struct pgm *img, int x, int y, int largura, int altura) {
+    unsigned char *data = img->pData;
+    int larguraImg = img->largura;
     
     
     if (blocoHomogeneo(data, larguraImg, x, y, largura, altura) || (largura == 1 && altura == 1)) {
         int media = calcularMedia(data, larguraImg, x, y, largura, altura);
+        // 'media' será usado como o valor do nível de cinza do nó da imagem.
         return criarNo(x, y, largura, altura, media, 1);  
     }
     
     
     int metadeLargura = largura / 2;
     int metadeAltura = altura / 2;
-
+    
+    //Como não é um nó folha não receberá valor
     QuadTreeNode* node = criarNo(x, y, largura, altura, 0, 0);  // Nó interno
 
+    //Acessa os membros desse nó para criar seus filhos.
+    node->superiorEsquerdo = construirQuadTree(img, x, y, metadeLargura, metadeAltura);
+    node->superiorDireito = construirQuadTree(img, x + metadeLargura, y, largura - metadeLargura, metadeAltura);
+    node->inferiorEsquerdo = construirQuadTree(img, x, y + metadeAltura, metadeLargura, altura - metadeAltura);
+    node->inferiorDireito = construirQuadTree(img, x + metadeLargura, y + metadeAltura, largura - metadeLargura, altura - metadeAltura);
     
-    node->superiorEsquerdo = construirQuadTree(pio, x, y, metadeLargura, metadeAltura);
-    node->superiorDireito = construirQuadTree(pio, x + metadeLargura, y, largura - metadeLargura, metadeAltura);
-    node->inferiorEsquerdo = construirQuadTree(pio, x, y + metadeAltura, metadeLargura, altura - metadeAltura);
-    node->inferiorDireito = construirQuadTree(pio, x + metadeLargura, y + metadeAltura, largura - metadeLargura, altura - metadeAltura);
-
+    //Retorna um ponteiro para um QuadTreeNode
     return node;
 }
 
 
 void imprimirQuadTree(QuadTreeNode *node) {
     if (node == NULL) return;
-
+    //Exibe informação dos nós de forma recursiva.
     if (node->folha) {
         printf("Bloco [%d, %d] - Largura: %d, Altura: %d - Valor: %d (Folha)\n", node->x, node->y, node->largura, node->altura, node->valor);
     } else {
@@ -62,12 +66,12 @@ void imprimirQuadTree(QuadTreeNode *node) {
     }
 }
 
-
+//Calcula a media para utilizar como parametro posteriormente
 int calcularMedia(unsigned char *data, int larguraImg, int x, int y, int largura, int altura) {
     int soma = 0;
     for (int i = 0; i < altura; i++) {
         for (int j = 0; j < largura; j++) {
-            soma += data[(y + i) * larguraImg + (x + j)];
+            soma += *(data+ ((y + i) * larguraImg + (x + j)));
         }
     }
     return soma / (largura * altura);
@@ -81,7 +85,7 @@ int blocoHomogeneo(unsigned char *data, int larguraImg, int x, int y, int largur
     // Calcula a soma dos valores dos pixels e a soma dos quadrados dos valores
     for (int i = 0; i < altura; i++) {
         for (int j = 0; j < largura; j++) {
-            int valorAtual = data[(y + i) * larguraImg + (x + j)];
+            int valorAtual = *(data+ ((y + i) * larguraImg + (x + j)));
             soma += valorAtual;
             somaQuadrados += valorAtual * valorAtual;
         }
@@ -91,21 +95,11 @@ int blocoHomogeneo(unsigned char *data, int larguraImg, int x, int y, int largur
     float media = soma / (float)totalPixels;
     float mediaQuadrados = somaQuadrados / (float)totalPixels;
 
-    // Calcula o desvio padrão
+    // Calculo do desvio padrão
     float desvioPadrao = sqrt(mediaQuadrados - media * media);
 
-    // Calcula o erro médio quadrático
-    float erroMedioQuadratico = 0;
-    for (int i = 0; i < altura; i++) {
-        for (int j = 0; j < largura; j++) {
-            int valorAtual = data[(y + i) * larguraImg + (x + j)];
-            erroMedioQuadratico += (valorAtual - media) * (valorAtual - media);
-        }
-    }
-    erroMedioQuadratico /= totalPixels;
-
     // Verifica se o bloco é homogêneo com base nas tolerâncias
-    if (desvioPadrao <= toleranciaDP && erroMedioQuadratico <= toleranciaEMQ) {
+    if (desvioPadrao <= toleranciaDP) {
         return 1;  // Bloco é considerado homogêneo
     }
 

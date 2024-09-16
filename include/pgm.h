@@ -9,9 +9,9 @@ struct pgm{
 	unsigned char *pData;
 };
 
-void readPGMImage(struct pgm *pio, char *filename);
-void writePGMImage(struct pgm *pio, char *filename);
-void viewPGMImage(struct pgm *pio);
+void readPGMImage(struct pgm *img, char *filename);
+void writePGMImage(struct pgm *img, char *filename);
+void viewPGMImage(struct pgm *img);
 
 #endif
 
