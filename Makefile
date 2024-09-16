@@ -3,7 +3,7 @@
 all: prog.e decode.e
 
 prog.e: code.o compress.o quadtree.o pgm.o
-	gcc -o prog.e code.o compress.o quadtree.o pgm.o
+	gcc -o prog.e code.o compress.o quadtree.o pgm.o -lm
 
 decode.e: decode.o decodificacao.o pgm.o
 	gcc -o decode.e decode.o decodificacao.o pgm.o
@@ -18,7 +18,7 @@ compress.o: src/compress.c
 	gcc -Iinclude -c src/compress.c -o compress.o
 
 quadtree.o: src/quadtree.c
-	gcc -Iinclude -c src/quadtree.c -o quadtree.o
+	gcc -Iinclude -c src/quadtree.c -o quadtree.o -lm
 
 pgm.o: src/pgm.c
 	gcc -Iinclude -c src/pgm.c -o pgm.o
