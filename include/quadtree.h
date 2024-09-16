@@ -8,7 +8,7 @@ typedef struct QuadTreeNode {
     int largura, altura;  
     int valor;  
     int folha;  
-    struct QuadTreeNode *topLeft, *topRight, *bottomLeft, *bottomRight;  
+    struct QuadTreeNode *superiorEsquerdo, *superiorDireito, *inferiorEsquerdo, *inferiorDireito;  
 } QuadTreeNode;
 
 
