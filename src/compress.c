@@ -1,15 +1,12 @@
 /************************************************************************** */
-/* Aluno: Lucas Delacroix
-* Guilherme Pereira
-* Antonio Lucas
-* Louse
+/* Aluno: Lucas Delacroix Alves do Rêgo 
+* Guilherme Pereira de Souza
+* Antonio Lucas Barbosa Salvador
+* Louise Sampaio Araújo Gonçalves
 * Avaliacao 04: Trabalho Final
 * 2024.1 - Prof. Daniel Ferreira
 * Compilador:gcc (Ubuntu 11.4.0-1ubuntu1~22.04)
 ***************************************************************************************/
-
-
-
 
 #include "compress.h"
 #include <stdio.h>

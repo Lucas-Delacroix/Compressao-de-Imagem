@@ -1,26 +1,22 @@
 /************************************************************************** */
-/* Aluno: Lucas Delacroix
-* Guilherme Pereira
-* Antonio Lucas
-* Louse
-* Avaliacao 04: Trabalho Final
-* 2024.1 - Prof. Daniel Ferreira
-* Compilador:gcc (Ubuntu 11.4.0-1ubuntu1~22.04)
-***************************************************************************************/
-
-
-
+/* Aluno: Lucas Delacroix Alves do Rêgo
+ * Guilherme Pereira de Souza
+ * Antonio Lucas Barbosa Salvador
+ * Louise Sampaio Araújo Gonçalves
+ * Avaliacao 04: Trabalho Final
+ * 2024.1 - Prof. Daniel Ferreira
+ * Compilador:gcc (Ubuntu 11.4.0-1ubuntu1~22.04)
+ ***************************************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "decodificacao.h"
 
-//Mesma coisa da compressao em compress.c
+// Mesma coisa da compressao em compress.c
 static int buffer = 0;
 static int bitsDisponiveis = 0;
-
-
 
 int lerBits(FILE *file, int numBits)
 {
@@ -48,7 +44,6 @@ int lerBits(FILE *file, int numBits)
 	return resultado;
 }
 
-
 void decode(FILE *file, int x, int y, int altura, int largura, struct pgm *pio)
 {
 	int folha = lerBits(file, 1); // Ler 1 bit para verificar se é nó folha
@@ -74,11 +69,13 @@ void decode(FILE *file, int x, int y, int altura, int largura, struct pgm *pio)
 	{
 		int metadeAltura = altura / 2;
 		int metadeLargura = largura / 2;
-		if(metadeAltura % 2 != 0){
-			metadeAltura+=1;
+		if (metadeAltura % 2 != 0)
+		{
+			metadeAltura += 1;
 		}
-		if(metadeLargura % 2 != 0){
-			metadeLargura+=1;
+		if (metadeLargura % 2 != 0)
+		{
+			metadeLargura += 1;
 		}
 
 		// Chamar recursivamente para os quatro sub-blocos
@@ -88,7 +85,6 @@ void decode(FILE *file, int x, int y, int altura, int largura, struct pgm *pio)
 		decode(file, x + metadeLargura, y + metadeAltura, altura - metadeAltura, largura - metadeLargura, pio); // inferiorDireita
 	}
 }
-
 
 void reconstruirImagem(const char *filename, struct pgm *img)
 {
@@ -100,30 +96,34 @@ void reconstruirImagem(const char *filename, struct pgm *img)
 	}
 
 	if (fread(&img->largura, sizeof(int), 1, file) != 1 ||
-        fread(&img->altura, sizeof(int), 1, file) != 1)
-    {
-        perror("Erro ao ler as dimensões da imagem");
-        fclose(file);
-        exit(1);
-    }
+		fread(&img->altura, sizeof(int), 1, file) != 1)
+	{
+		perror("Erro ao ler as dimensões da imagem");
+		fclose(file);
+		exit(1);
+	}
 	// Verificação: Certifique-se de que os valores de largura e altura são válidos
-    if (img->largura <= 0 || img->altura <= 0)
-    {
-        printf("Erro: Dimensões inválidas da imagem (%d x %d).\n", img->largura, img->altura);
-        fclose(file);
-        exit(1);
-    }
+	if (img->largura <= 0 || img->altura <= 0)
+	{
+		printf("Erro: Dimensões inválidas da imagem (%d x %d).\n", img->largura, img->altura);
+		fclose(file);
+		exit(1);
+	}
 	img->tipo = 5;
 	img->pData = (unsigned char *)malloc(img->largura * img->altura * sizeof(unsigned char));
-    
-	if (img->pData == NULL)
-    {
-        perror("Erro ao alocar memória para os dados da imagem");
-        fclose(file);
-        exit(1);
-    }
 
-	memset(img->pData, 255, img->largura * img->altura);
+	if (img->pData == NULL)
+	{
+		perror("Erro ao alocar memória para os dados da imagem");
+		fclose(file);
+		exit(1);
+	}
+
+	srand(time(NULL)); // Inicializa o gerador de números aleatórios
+	for (int i = 0; i < img->largura * img->altura; i++)
+	{
+		img->pData[i] = rand() % 256; // Preenche com valores aleatórios entre 0 e 255
+	}
 	decode(file, 0, 0, img->altura, img->largura, img);
 
 	fclose(file);
