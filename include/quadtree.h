@@ -18,5 +18,6 @@ QuadTreeNode* construirQuadTree(struct pgm *pio, int x, int y, int largura, int 
 void imprimirQuadTree(QuadTreeNode *node);
 int calcularMedia(unsigned char *data, int larguraImg, int x, int y, int largura, int altura);
 int blocoHomogeneo(unsigned char *data, int larguraImg, int x, int y, int largura, int altura);
+void liberarQuadTree(QuadTreeNode *node);
 
 #endif

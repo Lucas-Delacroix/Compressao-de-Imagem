@@ -2,7 +2,7 @@
 /* Aluno: Lucas Delacroix
 * Guilherme Pereira
 * Antonio Lucas
-* Louse
+* Louise Sampaio Araújo Gonçalves
 * Avaliacao 04: Trabalho Final
 * 2024.1 - Prof. Daniel Ferreira
 * Compilador:gcc (Ubuntu 11.4.0-1ubuntu1~22.04)
