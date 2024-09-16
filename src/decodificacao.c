@@ -3,11 +3,14 @@
 #include <string.h>
 #include "decodificacao.h"
 
+// No topo do arquivo decodificacao.c
+static int buffer = 0;
+static int bitsDisponiveis = 0;
+
+
 
 int lerBits(FILE *file, int numBits)
 {
-	static int buffer = 0;
-	static int bitsDisponiveis = 0;
 	int resultado = 0;
 
 	while (numBits > 0)
@@ -50,10 +53,6 @@ void decode(FILE *file, int x, int y, int altura, int largura, struct pgm *pio)
 			{
 				int posX = x + j;
 				int posY = y + i;
-				if (posX >= pio->largura || posY >= pio->altura)
-				{
-					continue; // Ignorar pixels fora dos limites
-				}
 				pio->pData[posY * pio->largura + posX] = media;
 			}
 		}
@@ -62,6 +61,12 @@ void decode(FILE *file, int x, int y, int altura, int largura, struct pgm *pio)
 	{
 		int metadeAltura = altura / 2;
 		int metadeLargura = largura / 2;
+		if(metadeAltura % 2 != 0){
+			metadeAltura+=1;
+		}
+		if(metadeLargura % 2 != 0){
+			metadeLargura+=1;
+		}
 
 		// Chamar recursivamente para os quatro sub-blocos
 		decode(file, x, y, metadeAltura, metadeLargura, pio);													// Top-Left
@@ -105,7 +110,7 @@ void reconstruirImagem(const char *filename, struct pgm *img)
         exit(1);
     }
 
-	memset(img->pData, 0, img->largura * img->altura);
+	memset(img->pData, 255, img->largura * img->altura);
 	decode(file, 0, 0, img->altura, img->largura, img);
 
 	fclose(file);

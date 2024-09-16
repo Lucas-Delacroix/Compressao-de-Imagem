@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+static int buffer = 0;
+static int bitsDisponiveis = 8;
+
+
 // Função para gerar o arquivo binário
 void compressQuadTreeToBin(QuadTreeNode *root, int largura, int altura, const char *filename)
 {
@@ -78,8 +82,6 @@ void QuadTreeParaTxtBitstream(QuadTreeNode *node, FILE *fileTxt)
 // Função de escrita de bits no arquivo binário
 void escreverBits(FILE *file, int valor, int numBits)
 {
-    static int buffer = 0;
-    static int bitsDisponiveis = 8;
 
     while (numBits > 0)
     {
@@ -101,12 +103,14 @@ void escreverBits(FILE *file, int valor, int numBits)
 // Finaliza o bitstream
 void finalizarBitstream(FILE *file)
 {
-    static int buffer = 0;
-    static int bitsDisponiveis = 8;
 
     if (bitsDisponiveis < 8)
     {
         buffer <<= bitsDisponiveis;
         fputc(buffer, file);
     }
+
+    // Resetar as variáveis
+    buffer = 0;
+    bitsDisponiveis = 8;
 }
