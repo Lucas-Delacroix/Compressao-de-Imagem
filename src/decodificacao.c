@@ -1,9 +1,22 @@
+/************************************************************************** */
+/* Aluno: Lucas Delacroix
+* Guilherme Pereira
+* Antonio Lucas
+* Louse
+* Avaliacao 04: Trabalho Final
+* 2024.1 - Prof. Daniel Ferreira
+* Compilador:gcc (Ubuntu 11.4.0-1ubuntu1~22.04)
+***************************************************************************************/
+
+
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "decodificacao.h"
 
-// No topo do arquivo decodificacao.c
+//Mesma coisa da compressao em compress.c
 static int buffer = 0;
 static int bitsDisponiveis = 0;
 
@@ -69,10 +82,10 @@ void decode(FILE *file, int x, int y, int altura, int largura, struct pgm *pio)
 		}
 
 		// Chamar recursivamente para os quatro sub-blocos
-		decode(file, x, y, metadeAltura, metadeLargura, pio);													// Top-Left
-		decode(file, x + metadeLargura, y, metadeAltura, largura - metadeLargura, pio);							// Top-Right
-		decode(file, x, y + metadeAltura, altura - metadeAltura, metadeLargura, pio);							// Bottom-Left
-		decode(file, x + metadeLargura, y + metadeAltura, altura - metadeAltura, largura - metadeLargura, pio); // Bottom-Right
+		decode(file, x, y, metadeAltura, metadeLargura, pio);													// superiorEsquerda
+		decode(file, x + metadeLargura, y, metadeAltura, largura - metadeLargura, pio);							// superiorDireita
+		decode(file, x, y + metadeAltura, altura - metadeAltura, metadeLargura, pio);							// inferiorEsquerda
+		decode(file, x + metadeLargura, y + metadeAltura, altura - metadeAltura, largura - metadeLargura, pio); // inferiorDireita
 	}
 }
 

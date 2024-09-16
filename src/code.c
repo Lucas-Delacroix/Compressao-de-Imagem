@@ -1,3 +1,15 @@
+/************************************************************************** */
+/* Aluno: Lucas Delacroix
+* Guilherme Pereira
+* Antonio Lucas
+* Louse
+* Avaliacao 04: Trabalho Final
+* 2024.1 - Prof. Daniel Ferreira
+* Compilador:gcc (Ubuntu 11.4.0-1ubuntu1~22.04)
+***************************************************************************************/
+
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "compress.h"
