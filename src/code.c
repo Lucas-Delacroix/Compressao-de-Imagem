@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 	//Declaração de um ponteiro root do tipo quadtree (nó) e criação da imagem representada por img
 	QuadTreeNode *root = construirQuadTree(&img, 0, 0, img.largura, img.altura);
 
-	//Comprimir quadtree e salva os dados como saida.bin 
+	//Comprimir quadtree e salva os dados como saida.bin e saida.txt
 	compressQuadTreeToBin(root, img.largura, img.altura, "saida.bin");
 	compressQuadTreeToTxt(root, img.largura, img.altura, "saida.txt");
 

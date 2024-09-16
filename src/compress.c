@@ -55,10 +55,10 @@ void QuadTreeParaBitstream(QuadTreeNode *node, FILE *file)
     else
     {
         escreverBits(file, 0, 1); // Indica que não é folha
-        QuadTreeParaBitstream(node->topLeft, file);
-        QuadTreeParaBitstream(node->topRight, file);
-        QuadTreeParaBitstream(node->bottomLeft, file);
-        QuadTreeParaBitstream(node->bottomRight, file);
+        QuadTreeParaBitstream(node->superiorEsquerdo, file);
+        QuadTreeParaBitstream(node->superiorDireito, file);
+        QuadTreeParaBitstream(node->inferiorEsquerdo, file);
+        QuadTreeParaBitstream(node->inferiorDireito, file);
     }
 }
 
@@ -72,10 +72,10 @@ void QuadTreeParaTxtBitstream(QuadTreeNode *node, FILE *fileTxt)
     else
     {
         fprintf(fileTxt, "0\n");
-        QuadTreeParaTxtBitstream(node->topLeft, fileTxt);
-        QuadTreeParaTxtBitstream(node->topRight, fileTxt);
-        QuadTreeParaTxtBitstream(node->bottomLeft, fileTxt);
-        QuadTreeParaTxtBitstream(node->bottomRight, fileTxt);
+        QuadTreeParaTxtBitstream(node->superiorEsquerdo, fileTxt);
+        QuadTreeParaTxtBitstream(node->superiorDireito, fileTxt);
+        QuadTreeParaTxtBitstream(node->inferiorEsquerdo, fileTxt);
+        QuadTreeParaTxtBitstream(node->inferiorDireito, fileTxt);
     }
 }
 
