@@ -20,10 +20,10 @@ Para decodificar a imagem digite:
 
 ## Imagens Reconstruidas 
 
-![alt text](image.png)
+![alt text](.github/image.png)
 
-![alt text](image-1.png)
+![alt text](.github/image-1.png)
 
-![alt text](image-2.png)
+![alt text](.github/image-2.png)
 
-![alt text](image-3.png)
+![alt text](.github/image-3.png)
