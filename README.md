@@ -18,3 +18,12 @@ Para construir a imagem digite:
 Para decodificar a imagem digite:
 ./decode.e reconstrucao.pgm
 
+## Imagens Reconstruidas 
+
+![alt text](image.png)
+
+![alt text](image-1.png)
+
+![alt text](image-2.png)
+
+![alt text](image-3.png)

@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define toleranciaDP 5 // Maior, mais perda
+#define toleranciaDP 20// Maior, mais perda
 
 QuadTreeNode *criarNo(int x, int y, int largura, int altura, int valor, int folha)
 {
