@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define toleranciaDP 20// Maior, mais perda
+#define toleranciaDP 10// Maior, mais perda
 
 QuadTreeNode *criarNo(int x, int y, int largura, int altura, int valor, int folha)
 {
@@ -93,30 +93,12 @@ int calcularMedia(unsigned char *data, int larguraImg, int x, int y, int largura
 
 int blocoHomogeneo(unsigned char *data, int larguraImg, int x, int y, int largura, int altura)
 {
-    int soma = 0;
-    int somaQuadrados = 0;
-    int totalPixels = largura * altura;
+    float desvioPadrao = calcularDesvioPadrao(data, larguraImg, x, y, largura, altura);
+    float MAE = calcularMAE(data, larguraImg, x, y, largura, altura);
 
-    // Calcula a soma dos valores dos pixels e a soma dos quadrados dos valores
-    for (int i = 0; i < altura; i++)
-    {
-        for (int j = 0; j < largura; j++)
-        {
-            int valorAtual = *(data + ((y + i) * larguraImg + (x + j)));
-            soma += valorAtual;
-            somaQuadrados += valorAtual * valorAtual;
-        }
-    }
-
-    // Calcula a média e a média dos quadrados
-    float media = soma / (float)totalPixels;
-    float mediaQuadrados = somaQuadrados / (float)totalPixels;
-
-    // Calculo do desvio padrão
-    float desvioPadrao = sqrt(mediaQuadrados - media * media);
-
+    
     // Verifica se o bloco é homogêneo com base nas tolerâncias
-    if (desvioPadrao <= toleranciaDP)
+    if (MAE <= toleranciaDP)
     {
         return 1; // Bloco é considerado homogêneo
     }
@@ -139,4 +121,65 @@ void liberarQuadTree(QuadTreeNode *node)
 
     // Libera o próprio nó
     free(node);
+}
+
+float calcularDesvioPadrao(unsigned char *data, int larguraImg, int x, int y, int largura, int altura)
+{
+    
+    int soma = 0;
+    int somaQuadrados = 0;
+    int totalPixels = largura * altura;
+
+    // Calcula a soma dos valores dos pixels e a soma dos quadrados dos valores
+    for (int i = 0; i < altura; i++)
+    {
+        for (int j = 0; j < largura; j++)
+        {
+            int valorAtual = *(data + ((y + i) * larguraImg + (x + j)));
+            soma += valorAtual;
+            somaQuadrados += valorAtual * valorAtual;
+        }
+    }
+
+    // Calcula a média e a média dos quadrados
+    float media = soma / (float)totalPixels;
+    float mediaQuadrados = somaQuadrados / (float)totalPixels;
+
+    // Calculo do desvio padrão
+    float desvioPadrao = sqrt(mediaQuadrados - media * media);
+    return desvioPadrao;
+}
+
+
+// Função para calcular o MAE de um bloco de pixels
+float calcularMAE(unsigned char *data, int larguraImg, int x, int y, int largura, int altura)
+{
+    int soma = 0;
+    int totalPixels = largura * altura;
+
+    // Calcula a soma dos valores dos pixels
+    for (int i = 0; i < altura; i++)
+    {
+        for (int j = 0; j < largura; j++)
+        {
+            soma += *(data + ((y + i) * larguraImg + (x + j)));
+        }
+    }
+
+    // Calcula a média dos pixels
+    float media = soma / (float)totalPixels;
+
+    // Calcula a soma das diferenças absolutas entre cada pixel e a média
+    float somaErrosAbsolutos = 0;
+    for (int i = 0; i < altura; i++)
+    {
+        for (int j = 0; j < largura; j++)
+        {
+            int valorAtual = *(data + ((y + i) * larguraImg + (x + j)));
+            somaErrosAbsolutos += fabs(valorAtual - media);
+        }
+    }
+
+    // Retorna o MAE
+    return somaErrosAbsolutos / totalPixels;
 }

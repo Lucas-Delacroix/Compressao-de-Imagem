@@ -19,5 +19,7 @@ void imprimirQuadTree(QuadTreeNode *node);
 int calcularMedia(unsigned char *data, int larguraImg, int x, int y, int largura, int altura);
 int blocoHomogeneo(unsigned char *data, int larguraImg, int x, int y, int largura, int altura);
 void liberarQuadTree(QuadTreeNode *node);
+float calcularDesvioPadrao(unsigned char *data, int larguraImg, int x, int y, int largura, int altura);
+float calcularMAE(unsigned char *data, int larguraImg, int x, int y, int largura, int altura);
 
 #endif
