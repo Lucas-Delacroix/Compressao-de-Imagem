@@ -20,15 +20,15 @@
 int main(int argc, char *argv[])
 {
 	struct pgm img;
-	if (argc != 2)
+	if (argc != 3)
 	{
-		printf("Formato: \n\t %s <imagemSaida.pgm>\n", argv[0]);
+		printf("Formato: \n\t %s <binarioEntrada.bin> <imagemSaida.pgm>\n", argv[0]);
 		exit(1);
 	}
 
-	reconstruirImagem("saida.bin", &img);
+	reconstruirImagem(argv[1], &img);
 
-	writePGMImage(&img, argv[1]);
+	writePGMImage(&img, argv[2]);
 	viewPGMImage(&img);
 
 

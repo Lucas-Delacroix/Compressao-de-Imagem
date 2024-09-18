@@ -46,7 +46,7 @@ void compressQuadTreeToTxt(QuadTreeNode *root, int largura, int altura, const ch
     if (!fileTxt)
     {
         perror("Erro ao abrir arquivo de texto para bitstream");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     fprintf(fileTxt, "Largura: %d, Altura: %d\n", largura, altura);

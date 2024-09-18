@@ -23,9 +23,9 @@ int main(int argc, char *argv[])
 	struct pgm img;
 
 	//Verificar argumentos de execução
-	if (argc != 3)
+	if (argc != 4)
 	{
-		printf("Formato: \n\t %s <imagemEntrada.pgm> <imagemSaida.pgm>\n", argv[0]);
+		printf("Formato: \n\t %s <imagemEntrada.pgm> <binarioSaida.bin> <binarioSaida.txt>\n", argv[0]);
 		exit(1);
 	}
 
@@ -38,14 +38,14 @@ int main(int argc, char *argv[])
 	QuadTreeNode *root = construirQuadTree(&img, 0, 0, img.largura, img.altura);
 
 	//Comprimir quadtree e salva os dados como saida.bin e saida.txt
-	compressQuadTreeToBin(root, img.largura, img.altura, "saida.bin");
-	compressQuadTreeToTxt(root, img.largura, img.altura, "saida.txt");
+	compressQuadTreeToBin(root, img.largura, img.altura, argv[2]);
+	compressQuadTreeToTxt(root, img.largura, img.altura, argv[3]);
 
 	//Visualizar estrutura da quadtree
 	imprimirQuadTree(root);
 
 	//Gravar a imagem img no arquivo de saída no segundo argumento de entrada
-	writePGMImage(&img, argv[2]);
+	writePGMImage(&img, "code.pgm");
 
 	//Exibir PGM na tela.
 	viewPGMImage(&img);
